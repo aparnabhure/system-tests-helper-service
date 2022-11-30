@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.5</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.example.systemtestshelper</groupId>
+    <artifactId>system-tests-helper-service</artifactId>
+    <version>0.0.1</version>
+    <name>system-tests-helper-service</name>
+    <description>system-tests-helper-service</description>
+    <packaging>jar</packaging>
+
+    <properties>
+        <java.version>11</java.version>
+        <docker-maven-plugin.version>0.34.1</docker-maven-plugin.version>
+        <org.apache.commons.collections.version>4.4</org.apache.commons.collections.version>
+        <org.apache.commons.lang.version>3.12.0</org.apache.commons.lang.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons.collections.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${org.apache.commons.lang.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.12.336</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Docker builds -->
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <sourceDirectory>.</sourceDirectory>
+                    <registry>openjdk</registry>
+                    <images>
+                        <image>
+                            <name>%a</name>
+                            <build>
+                                <tags>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <dockerFileDir>docker/${project.artifactId}</dockerFileDir>
+                                <assembly>
+                                    <mode>dir</mode>
+                                    <basedir>/usr/local/symantec/${project.artifactId}</basedir>
+                                    <descriptor>docker/${project.artifactId}/docker.xml</descriptor>
+                                </assembly>
+                                <args>
+                                    <SERVICE_PATH>/usr/local/symantec/${project.artifactId}</SERVICE_PATH>
+                                    <SERVICE_JAR>${project.artifactId}-${project.version}.jar</SERVICE_JAR>
+                                </args>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+            <!-- Configuration for building the JAR file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.systemtestshelper.SystemTestsHelperServiceApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

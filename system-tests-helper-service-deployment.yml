@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: system-tests-helper-service-pod
+spec:
+  volumes:
+    - name: system-tests-volume
+      persistentVolumeClaim:
+        claimName: system-tests-claims
+  containers:
+    - name: systemtestshelpercontainer
+      image: aparnabhure/system-tests-helper-service:latest
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - mountPath: /data/systemtests
+          name: system-tests-volume
+
+
