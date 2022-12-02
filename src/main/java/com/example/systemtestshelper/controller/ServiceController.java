@@ -77,7 +77,7 @@ public class ServiceController {
         }
 
         model.addAttribute("coverageReports", reports);
-        return "reports";
+        return "my_reports";
     }
 
     @GetMapping(value = "/reports/{reportId}/view")

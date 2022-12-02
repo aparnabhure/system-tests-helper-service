@@ -18,8 +18,8 @@
         <thead>
         <tr>
           <th> Service Name </th>
-          <th> Generated Report Location </th>
-          <th> View Report </th>
+<!--          <th> Generated Report Location </th>-->
+<!--          <th> View Report </th>-->
         </tr>
         </thead>
         <tbody>
@@ -27,12 +27,12 @@
           <td colspan="2"> No Reports Available </td>
         </tr>
         <tr th:each="coverageReport : ${coverageReports}">
-          <td th:text="${coverageReport.name}"></td>
-          <td th:text="${coverageReport.path}"></td>
+<!--          <td th:text="${coverageReport.name}"></td>-->
+<!--          <td th:text="${coverageReport.path}"></td>-->
           <td>
-            <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/index.html'}">View Report</a>
+            <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/index.html'}"><span th:text="${coverageReport.name}"/></a>
 
-            <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/view'}">View</a>
+<!--            <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/view'}">View</a>-->
 
 <!--            <form method="post" th:action="@{/systemtests/reports/view/details/}" th:object="${coverageReport}">-->
 <!--              <input type="submit" value="view report">-->
