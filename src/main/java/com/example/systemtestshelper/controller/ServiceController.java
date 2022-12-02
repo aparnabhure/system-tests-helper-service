@@ -7,27 +7,46 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.example.systemtestshelper.domains.CoverageReport;
+import com.example.systemtestshelper.domains.Report;
 import org.apache.commons.lang3.StringUtils;
 import com.example.systemtestshelper.domains.AwsConfig;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping(value = "/systemtests")
 public class ServiceController {
     @Value("${SERVICE_PATH:}")
     private String servicePath;
-    @Value("${PVC_PATH:}")
-    private String pvcPath;
+    //@Value("${PVC_PATH:}")
+    private String pvcPath="/Users/ab732698/Downloads/systemtests/view";
+    private static final String CSV_REPORT_PATH = "%s/report.csv";
+    @Value(("${spring.web.resources.static-locations:}"))
+    String path;
 
     AwsConfig awsConfig = new AwsConfig();
     SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
@@ -36,7 +55,94 @@ public class ServiceController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<String> home(){
-        return ResponseEntity.ok("Home :PVC path: "+ pvcPath + " : service path :"+servicePath);
+        return ResponseEntity.ok("Home :PVC path: "+ pvcPath + " : service path :"+servicePath +" : resource path "+path);
+    }
+
+    @GetMapping(value = "/reports/view")
+    @ResponseStatus(value = HttpStatus.OK)
+    public String viewReports(@RequestHeader final HttpHeaders headers, Model model){
+        List<CoverageReport> reports = new ArrayList<>();
+        File directoryPath = new File("/Users/ab732698/Downloads/systemtests/view");
+        if(directoryPath.exists()) {
+            File[] files = directoryPath.listFiles();
+            assert files != null;
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    String serviceName = f.getName();
+                    reports.add(new CoverageReport(serviceName, String.format(CSV_REPORT_PATH, f.getAbsolutePath())));
+                }
+            }
+        }else {
+            throw new IllegalArgumentException("Invalid coverage Path");
+        }
+
+        model.addAttribute("coverageReports", reports);
+        return "reports";
+    }
+
+    @GetMapping(value = "/reports/{reportId}/view")
+    public String viewReportById(@RequestHeader final HttpHeaders headers, @PathVariable String reportId, Model model) {
+        System.out.println(reportId);
+        List<Report> reports = new ArrayList<>();
+        String filePath = pvcPath+"/"+reportId+"/report.csv";
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // System.out.println(line);
+                String[] columns = line.split(",");
+                if(columns[0].equals("GROUP")){
+                    continue;
+                }
+
+                Report report = new Report();
+                report.setPackageName(columns[1]);
+                report.setClassName(columns[2]);
+                int missed = Integer.parseInt(columns[3]);
+                int covered = Integer.parseInt(columns[4]);
+                report.setInstructionCovered(covered);
+                report.setInstructionTotal(missed+covered);
+
+                missed = Integer.parseInt(columns[5]);
+                covered = Integer.parseInt(columns[6]);
+                report.setBranchCovered(covered);
+                report.setBranchTotal(missed+covered);
+
+                missed = Integer.parseInt(columns[7]);
+                covered = Integer.parseInt(columns[8]);
+                report.setLineCovered(covered);
+                report.setLineTotal(missed+covered);
+
+                missed = Integer.parseInt(columns[9]);
+                covered = Integer.parseInt(columns[10]);
+                report.setComplexityCovered(covered);
+                report.setComplexityTotal(missed+covered);
+
+                missed = Integer.parseInt(columns[11]);
+                covered = Integer.parseInt(columns[12]);
+                report.setMethodCovered(covered);
+                report.setMethodTotal(missed+covered);
+
+                reports.add(report);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("report", new CoverageReport(reportId, filePath));
+
+        model.addAttribute("reports", reports);
+        return "report_details";
+    }
+
+    @PostMapping("/reports/view/details")
+    public String submitForm(@RequestHeader final HttpHeaders headers, @ModelAttribute("coverageReport") CoverageReport coverageReport) {
+        System.out.println(coverageReport.toString());
+        return "report_details";
+    }
+
+    @GetMapping("/view")
+    public String welcome() {
+        return "1a-read-csv";
     }
 
     @PostMapping(value = "/generate")
@@ -60,6 +166,24 @@ public class ServiceController {
         }
 
         return ResponseEntity.ok("done");
+    }
+
+    @GetMapping(value = "/folders")
+    @ResponseBody
+    public ResponseEntity<List<String>> getFolderNames(){
+        List<String> folders = new ArrayList<>();
+        File directoryPath = new File("/Users/ab732698/Downloads/jacoco-0.8.8");
+        if(directoryPath.exists()) {
+            File[] files = directoryPath.listFiles();
+            assert files != null;
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    folders.add(f.getAbsolutePath());
+                }
+            }
+        }else throw new NoSuchElementException();
+
+        return ResponseEntity.ok(folders);
     }
 
     @PostMapping(value = "/upload")

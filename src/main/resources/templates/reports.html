@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ICDM Code Coverage Reports</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1> ICDM Code Coverage Report </h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <table>
+        <thead>
+        <tr>
+          <th> Service Name </th>
+          <th> Generated Report Location </th>
+          <th> View Report </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${coverageReports.empty}">
+          <td colspan="2"> No Reports Available </td>
+        </tr>
+        <tr th:each="coverageReport : ${coverageReports}">
+          <td th:text="${coverageReport.name}"></td>
+          <td th:text="${coverageReport.path}"></td>
+          <td>
+            <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/index.html'}">View Report</a>
+
+            <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/view'}">View</a>
+
+<!--            <form method="post" th:action="@{/systemtests/reports/view/details/}" th:object="${coverageReport}">-->
+<!--              <input type="submit" value="view report">-->
+<!--            </form>-->
+
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

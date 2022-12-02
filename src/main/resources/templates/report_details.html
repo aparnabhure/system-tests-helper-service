@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Report View</title>
+    <link rel="stylesheet" th:href="@{/css/0-dummy.css}">
+
+    <!-- (A) JS -->
+    <!-- https://github.com/okfn/csv.js/ -->
+    <script defer th:src="@{/js/csv_min.js}"></script>
+</head>
+<body>
+<div>
+    <span>Report name:</span><span th:text="${report.name}"></span><br/>
+    <span>Report Path:</span><span th:text="${report.path}" ></span><br/>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <span th:text="${report.name}"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <table>
+                <thead>
+                <tr>
+                    <th> PACKAGE </th>
+                    <th> CLASS </th>
+                    <th> INSTRUCTION_MISSED </th>
+                    <th> INSTRUCTION_COVERED </th>
+                    <th> BRANCH_MISSED </th>
+                    <th> BRANCH_COVERED </th>
+                    <th> LINE_MISSED </th>
+                    <th> LINE_COVERED </th>
+                    <th> COMPLEXITY_MISSED </th>
+                    <th> COMPLEXITY_COVERED </th>
+                    <th> METHOD_MISSED </th>
+                    <th> METHOD_COVERED </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${reports.empty}">
+                    <td colspan="2"> No Reports Available </td>
+                </tr>
+                <tr th:each="report : ${reports}">
+                    <td th:text="${report.packageName}"></td>
+                    <td th:text="${report.className}"></td>
+                    <td th:text="${report.instructionTotal}"></td>
+                    <td th:text="${report.instructionCovered}"></td>
+                    <td th:text="${report.branchTotal}"></td>
+                    <td th:text="${report.branchCovered}"></td>
+                    <td th:text="${report.lineTotal}"></td>
+                    <td th:text="${report.lineCovered}"></td>
+                    <td th:text="${report.complexityTotal}"></td>
+                    <td th:text="${report.complexityCovered}"></td>
+                    <td th:text="${report.methodTotal}"></td>
+                    <td th:text="${report.methodCovered}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
