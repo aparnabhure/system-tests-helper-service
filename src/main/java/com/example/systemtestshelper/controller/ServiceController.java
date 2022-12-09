@@ -9,6 +9,12 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.example.systemtestshelper.domains.CoverageReport;
 import com.example.systemtestshelper.domains.Report;
+import com.example.systemtestshelper.domains.xml.Class;
+import com.example.systemtestshelper.domains.xml.Package;
+import com.example.systemtestshelper.domains.xml.ReportXmlParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang3.StringUtils;
 import com.example.systemtestshelper.domains.AwsConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,15 +32,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Controller
@@ -43,7 +61,7 @@ public class ServiceController {
     @Value("${SERVICE_PATH:}")
     private String servicePath;
     //@Value("${PVC_PATH:}")
-    private String pvcPath="/Users/ab732698/Downloads/systemtests/view";
+    private String pvcPath="/Users/ab732698/Downloads/systemtests/view/logs";
     private static final String CSV_REPORT_PATH = "%s/report.csv";
     @Value(("${spring.web.resources.static-locations:}"))
     String path;
@@ -52,9 +70,14 @@ public class ServiceController {
     SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 
+    SAXParser saxParser;
+
+    Map<String, com.example.systemtestshelper.domains.xml.Report> cachedReports = new HashMap<>();
+
     @GetMapping
     @ResponseBody
     public ResponseEntity<String> home(){
+        cachedReports.clear();
         return ResponseEntity.ok("Home :PVC path: "+ pvcPath + " : service path :"+servicePath +" : resource path "+path);
     }
 
@@ -62,7 +85,7 @@ public class ServiceController {
     @ResponseStatus(value = HttpStatus.OK)
     public String viewReports(@RequestHeader final HttpHeaders headers, Model model){
         List<CoverageReport> reports = new ArrayList<>();
-        File directoryPath = new File("/Users/ab732698/Downloads/systemtests/view");
+        File directoryPath = new File(pvcPath);
         if(directoryPath.exists()) {
             File[] files = directoryPath.listFiles();
             assert files != null;
@@ -78,6 +101,101 @@ public class ServiceController {
 
         model.addAttribute("coverageReports", reports);
         return "my_reports";
+    }
+
+    @GetMapping(value = "/reports/{reportId}")
+    public ModelAndView report(@RequestHeader final HttpHeaders headers, @PathVariable String reportId){
+        return new ModelAndView(String.format("redirect:/%s/report/index.html", reportId));
+    }
+
+    @GetMapping(value = "reports/{reportId}/{packageId}/{classId}")
+    public String viewReportInXML(@RequestHeader final HttpHeaders headers, @PathVariable String reportId,
+                                  @PathVariable String packageId, @PathVariable String classId, Model model) {
+        model.addAttribute("report_id", packageId);
+        model.addAttribute("report_name", classId);
+        com.example.systemtestshelper.domains.xml.Report report = getReportsData(reportId);
+        if(report == null){
+            return "no_reports";
+        }
+
+        for(Package pk: report.getPackages()){
+            if(pk.getName().equals(packageId)){
+                for(Class c:pk.getClassList()) {
+                    if(c.getName().equals(classId)) {
+                        model.addAttribute("report", c);
+                        return "class_details_xml";
+                    }
+                }
+            }
+        }
+
+        return "no_reports";
+    }
+
+    @GetMapping(value = "reports/{reportId}/{packageId}")
+    public String viewReportInXML(@RequestHeader final HttpHeaders headers, @PathVariable String reportId,
+                                  @PathVariable String packageId, Model model) {
+        model.addAttribute("report_id", reportId);
+        model.addAttribute("report_name", packageId);
+        com.example.systemtestshelper.domains.xml.Report report = getReportsData(reportId);
+        if(report == null){
+            return "no_reports";
+        }
+
+        for(Package pk: report.getPackages()){
+            if(pk.getName().equals(packageId)){
+                model.addAttribute("report", pk);
+                return "package_details_xml";
+            }
+        }
+
+        return "no_reports";
+    }
+
+    @GetMapping(value = "reports/{reportId}/xml")
+    public String viewReportInXML(@RequestHeader final HttpHeaders headers, @PathVariable String reportId, Model model) {
+        model.addAttribute("report_id", reportId);
+        model.addAttribute("report_name", reportId);
+        com.example.systemtestshelper.domains.xml.Report report = getReportsData(reportId);
+        if(report == null){
+            return "no_reports";
+        }
+
+        model.addAttribute("report", report);
+        return "report_details_xml";
+    }
+
+    private com.example.systemtestshelper.domains.xml.Report getReportsData(String reportId){
+        if(cachedReports.containsKey(reportId)){
+            return cachedReports.get(reportId);
+        }
+
+        try(FileInputStream fileInputStream = new FileInputStream(pvcPath+"/"+reportId+"/report.xml")) {
+            initSaxParser();
+            ReportXmlParser parser = new ReportXmlParser();
+            saxParser.parse(fileInputStream, parser);
+            com.example.systemtestshelper.domains.xml.Report report = parser.getReport();
+            if(report != null){
+                cachedReports.put(reportId, report);
+                return report;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void initSaxParser() throws SAXException, ParserConfigurationException {
+        if(saxParser == null){
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            //Adding these properties will fix security issue with the Parser
+            saxParserFactory.setXIncludeAware(false);
+            saxParserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            saxParserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            saxParserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            saxParser = saxParserFactory.newSAXParser();
+            saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        }
     }
 
     @GetMapping(value = "/reports/{reportId}/view")
@@ -135,8 +253,8 @@ public class ServiceController {
     }
 
     @PostMapping("/reports/view/details")
-    public String submitForm(@RequestHeader final HttpHeaders headers, @ModelAttribute("coverageReport") CoverageReport coverageReport) {
-        System.out.println(coverageReport.toString());
+    public String submitForm(@ModelAttribute CoverageReport coverageReport, Model model) {
+        model.addAttribute("coverageReport", coverageReport);
         return "report_details";
     }
 

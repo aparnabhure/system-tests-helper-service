@@ -1,0 +1,851 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "128"
+    meta.helm.sh/release-name: event
+    meta.helm.sh/release-namespace: sedsep-dev
+  creationTimestamp: "2021-12-06T04:48:18Z"
+  generation: 542
+  labels:
+    app: nas
+    app.kubernetes.io/instance: nas
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nas
+    app.kubernetes.io/version: 1.0.68
+    cm-cluster: saas-dev-us-cstack-gke1
+    cm-geo: NorthAm
+    cm-instance: nas
+    cm-pop: Primary
+    cm-region: us-east-4
+    cm-service: nas
+    cm-service-unit: nas
+    cm-team: icdm
+    helm.sh/chart: notification-aggregator-service-1.0.452
+    release: nas
+  managedFields:
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:conditions:
+          .: {}
+          k:{"type":"Available"}:
+            .: {}
+            f:type: {}
+          k:{"type":"Progressing"}:
+            .: {}
+            f:type: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2022-04-25T19:52:41Z"
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        f:template:
+          f:metadata:
+            f:annotations:
+              f:kubectl.kubernetes.io/restartedAt: {}
+    manager: kubectl-rollout
+    operation: Update
+    time: "2022-11-17T23:28:42Z"
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:meta.helm.sh/release-name: {}
+          f:meta.helm.sh/release-namespace: {}
+        f:labels:
+          .: {}
+          f:app: {}
+          f:app.kubernetes.io/instance: {}
+          f:app.kubernetes.io/managed-by: {}
+          f:app.kubernetes.io/name: {}
+          f:app.kubernetes.io/version: {}
+          f:cm-cluster: {}
+          f:cm-geo: {}
+          f:cm-instance: {}
+          f:cm-pop: {}
+          f:cm-region: {}
+          f:cm-service: {}
+          f:cm-service-unit: {}
+          f:cm-team: {}
+          f:helm.sh/chart: {}
+          f:release: {}
+      f:spec:
+        f:progressDeadlineSeconds: {}
+        f:revisionHistoryLimit: {}
+        f:selector: {}
+        f:strategy:
+          f:rollingUpdate:
+            .: {}
+            f:maxSurge: {}
+            f:maxUnavailable: {}
+          f:type: {}
+        f:template:
+          f:metadata:
+            f:annotations:
+              .: {}
+              f:checksum/config: {}
+              f:deploymentDate: {}
+            f:labels:
+              .: {}
+              f:app: {}
+              f:app.kubernetes.io/instance: {}
+              f:app.kubernetes.io/name: {}
+              f:cm-cluster: {}
+              f:cm-geo: {}
+              f:cm-instance: {}
+              f:cm-pop: {}
+              f:cm-region: {}
+              f:cm-service: {}
+              f:cm-service-unit: {}
+              f:cm-team: {}
+              f:release: {}
+          f:spec:
+            f:affinity:
+              .: {}
+              f:nodeAffinity:
+                .: {}
+                f:requiredDuringSchedulingIgnoredDuringExecution: {}
+            f:containers:
+              k:{"name":"envoy"}:
+                .: {}
+                f:command: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:lifecycle:
+                  .: {}
+                  f:preStop:
+                    .: {}
+                    f:exec:
+                      .: {}
+                      f:command: {}
+                f:name: {}
+                f:readinessProbe:
+                  .: {}
+                  f:failureThreshold: {}
+                  f:httpGet:
+                    .: {}
+                    f:path: {}
+                    f:port: {}
+                    f:scheme: {}
+                  f:initialDelaySeconds: {}
+                  f:periodSeconds: {}
+                  f:successThreshold: {}
+                  f:timeoutSeconds: {}
+                f:resources:
+                  .: {}
+                  f:limits:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                  f:requests:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                f:startupProbe:
+                  .: {}
+                  f:failureThreshold: {}
+                  f:httpGet:
+                    .: {}
+                    f:path: {}
+                    f:port: {}
+                    f:scheme: {}
+                  f:initialDelaySeconds: {}
+                  f:periodSeconds: {}
+                  f:successThreshold: {}
+                  f:timeoutSeconds: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+                f:volumeMounts:
+                  .: {}
+                  k:{"mountPath":"/envoy"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/logs/"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/secrets"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+              k:{"name":"filebeat"}:
+                .: {}
+                f:env:
+                  .: {}
+                  k:{"name":"ACCESS_LOG_FILE_LOCATION"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"ACCESS_LOG_TYPE_NAME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"LOG_FILE_LOCATION"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"LOG_TYPE_NAME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"LOGSTASH_HOST"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_NAME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_NAMESPACE"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:name: {}
+                f:resources:
+                  .: {}
+                  f:limits:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                  f:requests:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+                f:volumeMounts:
+                  .: {}
+                  k:{"mountPath":"/usr/local/symantec/nas/logs/"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+              k:{"name":"logrotate"}:
+                .: {}
+                f:command: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:name: {}
+                f:resources:
+                  .: {}
+                  f:limits:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                  f:requests:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+                f:volumeMounts:
+                  .: {}
+                  k:{"mountPath":"/configs/logrotate.conf"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                    f:subPath: {}
+                  k:{"mountPath":"/data"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/logs"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/var/run/docker.sock"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                f:workingDir: {}
+              k:{"name":"nas"}:
+                .: {}
+                f:env:
+                  .: {}
+                  k:{"name":"ALLOW_HTTP"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"APP_HOME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"ENV_SERVICE_ACCESS_LOGGER_LEVEL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"ENV_SERVICE_LOGGER_LEVEL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"ENV_SERVICE_ROOT_LOGGER_LEVEL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"JVM_HEAP_MAX"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"JVM_HEAP_MIN"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_COVERAGE_LOCATION"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_LOG_FILE_ROLLOVER_SIZE"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_NAME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SYSTEM_TESTS_COVERAGE_ENABLED"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SYSTEM_TESTS_COVERAGE_LOCATION"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:livenessProbe:
+                  .: {}
+                  f:failureThreshold: {}
+                  f:httpGet:
+                    .: {}
+                    f:path: {}
+                    f:port: {}
+                    f:scheme: {}
+                  f:initialDelaySeconds: {}
+                  f:periodSeconds: {}
+                  f:successThreshold: {}
+                  f:timeoutSeconds: {}
+                f:name: {}
+                f:ports:
+                  .: {}
+                  k:{"containerPort":8080,"protocol":"TCP"}:
+                    .: {}
+                    f:containerPort: {}
+                    f:name: {}
+                    f:protocol: {}
+                f:readinessProbe:
+                  .: {}
+                  f:failureThreshold: {}
+                  f:httpGet:
+                    .: {}
+                    f:path: {}
+                    f:port: {}
+                    f:scheme: {}
+                  f:initialDelaySeconds: {}
+                  f:periodSeconds: {}
+                  f:successThreshold: {}
+                  f:timeoutSeconds: {}
+                f:resources:
+                  .: {}
+                  f:limits:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                  f:requests:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+                f:volumeMounts:
+                  .: {}
+                  k:{"mountPath":"/usr/local/symantec/icdm/coverage"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/usr/local/symantec/nas/conf/"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+                  k:{"mountPath":"/usr/local/symantec/nas/logs/"}:
+                    .: {}
+                    f:mountPath: {}
+                    f:name: {}
+              k:{"name":"statsd"}:
+                .: {}
+                f:env:
+                  .: {}
+                  k:{"name":"EPAGENT_URL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_NAME"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"SERVICE_NAMESPACE"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                  k:{"name":"STATSD_LOG_LEVEL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:name: {}
+                f:resources:
+                  .: {}
+                  f:limits:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                  f:requests:
+                    .: {}
+                    f:cpu: {}
+                    f:ephemeral-storage: {}
+                    f:memory: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+            f:dnsPolicy: {}
+            f:restartPolicy: {}
+            f:schedulerName: {}
+            f:securityContext: {}
+            f:serviceAccount: {}
+            f:serviceAccountName: {}
+            f:terminationGracePeriodSeconds: {}
+            f:tolerations: {}
+            f:volumes:
+              .: {}
+              k:{"name":"configs-envoy"}:
+                .: {}
+                f:configMap:
+                  .: {}
+                  f:defaultMode: {}
+                  f:name: {}
+                f:name: {}
+              k:{"name":"data"}:
+                .: {}
+                f:emptyDir: {}
+                f:name: {}
+              k:{"name":"dockersock"}:
+                .: {}
+                f:hostPath:
+                  .: {}
+                  f:path: {}
+                  f:type: {}
+                f:name: {}
+              k:{"name":"icdm-system-tests-volume"}:
+                .: {}
+                f:name: {}
+                f:persistentVolumeClaim:
+                  .: {}
+                  f:claimName: {}
+              k:{"name":"logs"}:
+                .: {}
+                f:emptyDir: {}
+                f:name: {}
+              k:{"name":"nas-logs-volume"}:
+                .: {}
+                f:emptyDir: {}
+                f:name: {}
+              k:{"name":"properties-volume"}:
+                .: {}
+                f:name: {}
+                f:projected:
+                  .: {}
+                  f:defaultMode: {}
+                  f:sources: {}
+              k:{"name":"secrets-tls"}:
+                .: {}
+                f:name: {}
+                f:secret:
+                  .: {}
+                  f:defaultMode: {}
+                  f:secretName: {}
+    manager: helm
+    operation: Update
+    time: "2022-12-07T13:57:19Z"
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        f:replicas: {}
+    manager: GoogleCloudConsole
+    operation: Update
+    time: "2022-12-08T03:59:18Z"
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:deployment.kubernetes.io/revision: {}
+      f:status:
+        f:availableReplicas: {}
+        f:conditions:
+          k:{"type":"Available"}:
+            f:lastTransitionTime: {}
+            f:lastUpdateTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+          k:{"type":"Progressing"}:
+            f:lastTransitionTime: {}
+            f:lastUpdateTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+        f:observedGeneration: {}
+        f:readyReplicas: {}
+        f:replicas: {}
+        f:updatedReplicas: {}
+    manager: kube-controller-manager
+    operation: Update
+    subresource: status
+    time: "2022-12-08T04:25:40Z"
+  name: nas
+  namespace: sedsep-dev
+  resourceVersion: "5421005633"
+  uid: 1801f310-77e5-4d6a-8d79-be98b8f74e9e
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: nas
+      app.kubernetes.io/instance: nas
+      app.kubernetes.io/name: nas
+      release: nas
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 76a3fcad8d5f5436601aaf7467e0c656c326a071f1c638d66e9d4bbbbd54f828
+        deploymentDate: "2022-12-08 03:35:51"
+        kubectl.kubernetes.io/restartedAt: "2022-12-01T14:32:05-08:00"
+      creationTimestamp: null
+      labels:
+        app: nas
+        app.kubernetes.io/instance: nas
+        app.kubernetes.io/name: nas
+        cm-cluster: saas-dev-us-cstack-gke1
+        cm-geo: NorthAm
+        cm-instance: nas
+        cm-pop: Primary
+        cm-region: us-east-4
+        cm-service: nas
+        cm-service-unit: nas
+        cm-team: icdm
+        release: nas
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sedsep-ses-services
+      containers:
+      - env:
+        - name: APP_HOME
+          value: /usr/local/symantec/nas/
+        - name: JVM_HEAP_MIN
+          value: 256m
+        - name: JVM_HEAP_MAX
+          value: 2048m
+        - name: ENV_SERVICE_ROOT_LOGGER_LEVEL
+          value: WARN
+        - name: ENV_SERVICE_LOGGER_LEVEL
+          value: DEBUG
+        - name: ENV_SERVICE_ACCESS_LOGGER_LEVEL
+          value: TRACE
+        - name: SERVICE_LOG_FILE_ROLLOVER_SIZE
+          value: 100MB
+        - name: SERVICE_NAME
+          value: nas
+        - name: SYSTEM_TESTS_COVERAGE_ENABLED
+          value: "true"
+        - name: SYSTEM_TESTS_COVERAGE_LOCATION
+          value: /usr/local/symantec/icdm/coverage
+        - name: SERVICE_COVERAGE_LOCATION
+          value: /usr/local/symantec/icdm/coverage/logs/nas
+        - name: ALLOW_HTTP
+          value: "true"
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/notification-aggregator-service:1.0.68
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 12
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: nas
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 24
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 800m
+            ephemeral-storage: 2Gi
+            memory: 3Gi
+          requests:
+            cpu: 800m
+            ephemeral-storage: 1Gi
+            memory: 3Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/symantec/nas/conf/
+          name: properties-volume
+        - mountPath: /usr/local/symantec/notification-aggregator-service/logs/
+          name: nas-logs-volume
+        - mountPath: /usr/local/symantec/icdm/coverage
+          name: icdm-system-tests-volume
+      - env:
+        - name: EPAGENT_URL
+          value: http://epa-rest-event.sedsep-epagent.svc.cluster.local:8888/apm/metricFeed
+        - name: SERVICE_NAMESPACE
+          value: sedsep-dev
+        - name: SERVICE_NAME
+          value: nas
+        - name: STATSD_LOG_LEVEL
+          value: info
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/icdm-statsd:1.0.8
+        imagePullPolicy: Always
+        name: statsd
+        resources:
+          limits:
+            cpu: 100m
+            ephemeral-storage: 500Mi
+            memory: 400Mi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 400Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - env:
+        - name: LOG_FILE_LOCATION
+          value: /usr/local/symantec/notification-aggregator-service/logs/nas.log
+        - name: ACCESS_LOG_FILE_LOCATION
+          value: /usr/local/symantec/notification-aggregator-service/logs/nas-access.log
+        - name: LOG_TYPE_NAME
+          value: nas
+        - name: ACCESS_LOG_TYPE_NAME
+          value: nas-access
+        - name: SERVICE_NAMESPACE
+          value: sedsep-dev
+        - name: SERVICE_NAME
+          value: nas
+        - name: LOGSTASH_HOST
+          value: icdm-logstash.sedsep-dev.svc.cluster.local
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/icdm-filebeat:latest
+        imagePullPolicy: Always
+        name: filebeat
+        resources:
+          limits:
+            cpu: 100m
+            ephemeral-storage: 500Mi
+            memory: 600Mi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 600Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/symantec/notification-aggregator-service/logs/
+          name: nas-logs-volume
+      - command:
+        - /usr/local/bin/envoy
+        - -c
+        - /envoy/envoy.yaml
+        - --service-cluster
+        - nas
+        - --service-node
+        - ${HOSTNAME}
+        - -l
+        - info
+        - --log-path
+        - /logs/envoy.application.log
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedicdsaas-images/envoy-alpine:v1.18.3
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - wget --post-data="" -O - http://127.0.0.1:10000/healthcheck/fail &&
+                sleep 10 || true
+        name: envoy
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: /healthz
+            port: 9443
+            scheme: HTTPS
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            ephemeral-storage: 1Gi
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 128Mi
+        startupProbe:
+          failureThreshold: 100
+          httpGet:
+            path: /healthz
+            port: 9443
+            scheme: HTTPS
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /envoy
+          name: configs-envoy
+        - mountPath: /logs/
+          name: logs
+        - mountPath: /secrets
+          name: secrets-tls
+      - command:
+        - sh
+        - -c
+        - |
+          set -ex
+          while true; do
+              logrotate -v /configs/logrotate.conf -s /data/logrotate.status
+              sleep 600
+          done
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedicdsaas-images/logrotate:1.1
+        imagePullPolicy: IfNotPresent
+        name: logrotate
+        resources:
+          limits:
+            cpu: 50m
+            ephemeral-storage: 20Mi
+            memory: 64Mi
+          requests:
+            cpu: 25m
+            ephemeral-storage: 20Mi
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /configs/logrotate.conf
+          name: properties-volume
+          subPath: logrotate.conf
+        - mountPath: /data
+          name: data
+        - mountPath: /logs
+          name: logs
+        - mountPath: /var/run/docker.sock
+          name: dockersock
+        workingDir: /logs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: gke.io/optimize-utilization-scheduler
+      securityContext: {}
+      serviceAccount: vaultauth-notification-aggregator-service
+      serviceAccountName: vaultauth-notification-aggregator-service
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: sedsep-ses-services
+      volumes:
+      - name: properties-volume
+        projected:
+          defaultMode: 420
+          sources:
+          - configMap:
+              name: notification-aggregator-service-config
+      - emptyDir: {}
+        name: nas-logs-volume
+      - emptyDir: {}
+        name: data
+      - hostPath:
+          path: /var/run/docker.sock
+          type: ""
+        name: dockersock
+      - name: icdm-system-tests-volume
+        persistentVolumeClaim:
+          claimName: icdm-system-tests-claims
+      - emptyDir: {}
+        name: logs
+      - name: secrets-tls
+        secret:
+          defaultMode: 420
+          secretName: notification-aggregator-sedsep-dev-svc-cluster-local-tls
+      - configMap:
+          defaultMode: 420
+          name: event-notification-aggregator-service-envoy-mesh
+        name: configs-envoy
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-12-07T10:42:53Z"
+    lastUpdateTime: "2022-12-08T03:44:26Z"
+    message: ReplicaSet "nas-674f74dbb" has successfully
+      progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2022-12-08T04:25:40Z"
+    lastUpdateTime: "2022-12-08T04:25:40Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 542
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

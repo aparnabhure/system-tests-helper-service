@@ -30,9 +30,9 @@
 <!--          <td th:text="${coverageReport.name}"></td>-->
 <!--          <td th:text="${coverageReport.path}"></td>-->
           <td>
-            <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/index.html'}"><span th:text="${coverageReport.name}"/></a>
+<!--            <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/index.html'}"><span th:text="${coverageReport.name}"/></a>-->
 
-<!--            <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/view'}">View</a>-->
+            <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/view'}"><span th:text="${coverageReport.name}"/></a>
 
 <!--            <form method="post" th:action="@{/systemtests/reports/view/details/}" th:object="${coverageReport}">-->
 <!--              <input type="submit" value="view report">-->

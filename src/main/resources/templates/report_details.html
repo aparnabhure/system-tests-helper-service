@@ -13,6 +13,23 @@
 <div>
     <span>Report name:</span><span th:text="${report.name}"></span><br/>
     <span>Report Path:</span><span th:text="${report.path}" ></span><br/>
+
+    <form action="#" th:action="@{/systemtests/reports/view/details}" th:object="${report}"
+          method="post" th:value="${report}">
+        <div class="row">
+            <div class="form-group col-md-8">
+                <input type="hidden" th:object="${report}" class="form-control"
+                       th:value="${report}"/>
+<!--                <input type="text" th:field="*{name}" class="form-control"-->
+<!--                       id="name" placeholder="name" th:value="${report.name}"/>-->
+            </div>
+            <div class="col-md-6">
+                <input type="submit" class="btn btn-primary" value=" Submit ">
+            </div>
+
+        </div>
+    </form>
+
 </div>
 
 <div class="container">

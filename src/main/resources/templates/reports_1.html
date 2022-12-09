@@ -17,8 +17,7 @@
         </tr>
         <tr th:each="coverageReport : ${coverageReports}">
             <td>
-<!--                <a href="#" data-th-href="@{'/'+${coverageReport.name}+'/report/index.html'}"><span th:text="${coverageReport.name}"/></a>-->
-                <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}+'/xml'}"><span th:text="${coverageReport.name}"/></a>
+                <a href="#" data-th-href="@{'/systemtests/reports/'+${coverageReport.name}}"><span th:text="${coverageReport.name}"/></a>
             </td>
         </tr>
     </table>
