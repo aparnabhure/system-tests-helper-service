@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class Report {
     String name;
-    List<Package> packages;
+    Map<String, Package> list;
     Coverage instructions = new Coverage();
     Coverage branches = new Coverage();
     Coverage lines = new Coverage();

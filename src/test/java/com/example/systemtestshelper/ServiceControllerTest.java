@@ -25,7 +25,7 @@ public class ServiceControllerTest {
             //saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-            ReportXmlParser parser = new ReportXmlParser();
+            ReportXmlParser parser = new ReportXmlParser("app-control-service");
             saxParser.parse(fileInputStream, parser);
 
             Report report = parser.getReport();

@@ -1,6 +1,7 @@
 package com.example.systemtestshelper.domains.xml;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
@@ -30,31 +31,32 @@ public class ReportXmlParser extends DefaultHandler {
     public static final String METHOD1 = "METHOD";
     public static final String CLASS1 = "CLASS";
 
-    List<Package> packages = new ArrayList<>();
-    List<Class> classes;
-    List<Method> methods;
+    Map<String, Package> packages = new HashMap<>();
+    Map<String, Class> classes;
+    Map<String, Method> methods;
     Map<String, Coverage> coverageMap;
     Report aReport;
     Package aPackage;
     Class aClass;
     Method aMethod;
 
+    public ReportXmlParser(String reportName){
+        aReport = new Report();
+        aReport.setName(reportName);
+    }
+
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         switch (qName){
-            case REPORT:
-                aReport = new Report();
-                aReport.setName(attributes.getValue(NAME));
-                break;
             case PACKAGE:
-                classes = new ArrayList<>();
+                classes = new HashMap<>();
                 aPackage = new Package();
                 String name = attributes.getValue(NAME);
                 name = name.replace("/", ".");
                 aPackage.setName(name);
                 break;
             case CLASS:
-                methods = new ArrayList<>();
+                methods = new HashMap<>();
                 aClass = new Class();
                 String className = attributes.getValue(NAME);
                 int index = className.lastIndexOf("/");
@@ -124,12 +126,13 @@ public class ReportXmlParser extends DefaultHandler {
                     aMethod.setMethods(coverageMap.getOrDefault(METHOD1, new Coverage()));
                     aMethod.setClasses(coverageMap.getOrDefault(CLASS1, new Coverage()));
                 }
-                methods.add(aMethod);
+                methods.put(aMethod.getName(), aMethod);
                 coverageMap = null;
                 break;
             case CLASS:
-                if(CollectionUtils.isNotEmpty(methods)) {
-                    aClass.setMethodList(methods);
+                if(MapUtils.isNotEmpty(methods)) {
+                    aClass.setUri(aReport.getName()+"/"+aPackage.getName()+"/"+aClass.getName());
+                    aClass.setList(methods);
                     if (coverageMap != null) {
                         aClass.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new Coverage()));
                         aClass.setBranches(coverageMap.getOrDefault(BRANCH, new Coverage()));
@@ -138,12 +141,13 @@ public class ReportXmlParser extends DefaultHandler {
                         aClass.setMethods(coverageMap.getOrDefault(METHOD1, new Coverage()));
                         aClass.setClasses(coverageMap.getOrDefault(CLASS1, new Coverage()));
                     }
-                    classes.add(aClass);
+                    classes.put(aClass.getName(), aClass);
                 }
                 coverageMap = null;
                 break;
             case PACKAGE:
-                aPackage.setClassList(classes);
+                aPackage.setUri(aReport.getName()+"/"+aPackage.getName());
+                aPackage.setList(classes);
                 if(coverageMap != null) {
                     aPackage.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new Coverage()));
                     aPackage.setBranches(coverageMap.getOrDefault(BRANCH, new Coverage()));
@@ -152,11 +156,11 @@ public class ReportXmlParser extends DefaultHandler {
                     aPackage.setMethods(coverageMap.getOrDefault(METHOD1, new Coverage()));
                     aPackage.setClasses(coverageMap.getOrDefault(CLASS1, new Coverage()));
                 }
-                packages.add(aPackage);
+                packages.put(aPackage.getName(), aPackage);
                 coverageMap = null;
                 break;
             case REPORT:
-                aReport.setPackages(packages);
+                aReport.setList(packages);
                 if(coverageMap != null) {
                     aReport.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new Coverage()));
                     aReport.setBranches(coverageMap.getOrDefault(BRANCH, new Coverage()));

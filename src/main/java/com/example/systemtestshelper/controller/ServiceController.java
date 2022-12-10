@@ -12,9 +12,6 @@ import com.example.systemtestshelper.domains.Report;
 import com.example.systemtestshelper.domains.xml.Class;
 import com.example.systemtestshelper.domains.xml.Package;
 import com.example.systemtestshelper.domains.xml.ReportXmlParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang3.StringUtils;
 import com.example.systemtestshelper.domains.AwsConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,13 +26,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,7 +40,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -118,14 +111,11 @@ public class ServiceController {
             return "no_reports";
         }
 
-        for(Package pk: report.getPackages()){
-            if(pk.getName().equals(packageId)){
-                for(Class c:pk.getClassList()) {
-                    if(c.getName().equals(classId)) {
-                        model.addAttribute("report", c);
-                        return "class_details_xml";
-                    }
-                }
+        if(report.getList().containsKey(packageId)){
+            Package pk = report.getList().get(packageId);
+            if(pk.getList().containsKey(classId)) {
+                model.addAttribute("report", pk.getList().get(classId));
+                return "details_xml";
             }
         }
 
@@ -142,11 +132,9 @@ public class ServiceController {
             return "no_reports";
         }
 
-        for(Package pk: report.getPackages()){
-            if(pk.getName().equals(packageId)){
-                model.addAttribute("report", pk);
-                return "package_details_xml";
-            }
+        if(report.getList().containsKey(packageId)){
+            model.addAttribute("report", report.getList().get(packageId));
+            return "details_xml";
         }
 
         return "no_reports";
@@ -162,7 +150,7 @@ public class ServiceController {
         }
 
         model.addAttribute("report", report);
-        return "report_details_xml";
+        return "details_xml";
     }
 
     private com.example.systemtestshelper.domains.xml.Report getReportsData(String reportId){
@@ -172,7 +160,7 @@ public class ServiceController {
 
         try(FileInputStream fileInputStream = new FileInputStream(pvcPath+"/"+reportId+"/report.xml")) {
             initSaxParser();
-            ReportXmlParser parser = new ReportXmlParser();
+            ReportXmlParser parser = new ReportXmlParser(reportId);
             saxParser.parse(fileInputStream, parser);
             com.example.systemtestshelper.domains.xml.Report report = parser.getReport();
             if(report != null){

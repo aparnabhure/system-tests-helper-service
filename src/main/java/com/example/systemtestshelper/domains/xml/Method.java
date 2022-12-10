@@ -17,4 +17,5 @@ public class Method {
     Coverage complexities = new Coverage();
     Coverage methods = new Coverage();
     Coverage classes = new Coverage();
+    String uri;
 }
