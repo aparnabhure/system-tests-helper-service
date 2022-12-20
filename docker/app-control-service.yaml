@@ -1,0 +1,367 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "518"
+    meta.helm.sh/release-name: ac-st-test
+    meta.helm.sh/release-namespace: sedsep-dev
+  creationTimestamp: "2020-11-04T14:52:54Z"
+  generation: 597
+  labels:
+    app: ac-st-test
+    app.kubernetes.io/instance: ac-st-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: ac-st-test
+    app.kubernetes.io/version: 1.7.386
+    cm-cluster: saas-dev-us-cstack-gke1
+    cm-geo: NorthAm
+    cm-instance: ac-st-test
+    cm-pop: Primary
+    cm-region: us-east-4
+    cm-service: ac-st-test
+    cm-service-unit: ac-st-test
+    cm-team: app-control
+    helm.sh/chart: app-control-service-1.0.552
+    release: ac-st-test
+  name: ac-st-test
+  namespace: sedsep-dev
+  resourceVersion: "5457728410"
+  uid: df26dcba-6727-4e88-9706-685d20e48113
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: ac-st-test
+      app.kubernetes.io/instance: ac-st-test
+      app.kubernetes.io/name: ac-st-test
+      release: ac-st-test
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: ec3f8a1ab8d0dfd8afdded38594d98be5791cc7e447f1c21ef0ad6165a9a4eb4
+        deploymentDate: "2022-12-15 00:41:35"
+        kubectl.kubernetes.io/restartedAt: "2022-12-01T14:30:52-08:00"
+      creationTimestamp: null
+      labels:
+        app: ac-st-test
+        app.kubernetes.io/instance: ac-st-test
+        app.kubernetes.io/name: ac-st-test
+        cm-cluster: saas-dev-us-cstack-gke1
+        cm-geo: NorthAm
+        cm-instance: ac-st-test
+        cm-pop: Primary
+        cm-region: us-east-4
+        cm-service: ac-st-test
+        cm-service-unit: ac-st-test
+        cm-team: app-control
+        release: ac-st-test
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sedsep-ses-services
+      containers:
+      - env:
+        - name: APP_HOME
+          value: /usr/local/symantec/ac-st-test/
+        - name: JVM_HEAP_MIN
+          value: 512m
+        - name: JVM_HEAP_MAX
+          value: 2048m
+        - name: ENV_SERVICE_ROOT_LOGGER_LEVEL
+          value: INFO
+        - name: ENV_SERVICE_LOGGER_LEVEL
+          value: INFO
+        - name: ENV_SERVICE_ACCESS_LOGGER_LEVEL
+          value: INFO
+        - name: SERVICE_LOG_FILE_ROLLOVER_SIZE
+          value: 100MB
+        - name: SERVICE_NAME
+          value: ac-st-test
+        - name: SYSTEM_TESTS_COVERAGE_ENABLED
+          value: "true"
+        - name: SYSTEM_TESTS_COVERAGE_LOCATION
+          value: /usr/local/symantec/icdm/coverage
+        - name: SERVICE_COVERAGE_LOCATION
+          value: /usr/local/symantec/icdm/coverage/logs/ac-st-test
+        - name: ALLOW_HTTP
+          value: "true"
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/app-control-service:1.7.386
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - sleep 10
+        livenessProbe:
+          failureThreshold: 12
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: ac-st-test
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - temp/serviceStarted.txt
+          failureThreshold: 24
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 800m
+            ephemeral-storage: 2Gi
+            memory: 3Gi
+          requests:
+            cpu: 800m
+            ephemeral-storage: 1Gi
+            memory: 3Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/symantec/ac-st-test/conf/
+          name: properties-volume
+        - mountPath: /usr/local/symantec/app-control-service/logs/
+          name: app-control-service-logs-volume
+        - mountPath: /usr/local/symantec/icdm/coverage
+          name: icdm-system-tests-volume
+        - mountPath: /usr/local/symantec/ac-st-test/jetstream/
+          name: jetstream-kafka-conf
+      - env:
+        - name: EPAGENT_URL
+          value: http://epa-rest-app-control.sedsep-epagent.svc.cluster.local:8888/apm/metricFeed
+        - name: SERVICE_NAMESPACE
+          value: sedsep-dev
+        - name: SERVICE_NAME
+          value: ac-st-test
+        - name: STATSD_LOG_LEVEL
+          value: info
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/icdm-statsd:1.0.9
+        imagePullPolicy: Always
+        name: statsd
+        resources:
+          limits:
+            cpu: 100m
+            ephemeral-storage: 500Mi
+            memory: 400Mi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 400Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - env:
+        - name: LOG_FILE_LOCATION
+          value: /usr/local/symantec/app-control-service/logs/ac-st-test.log
+        - name: ACCESS_LOG_FILE_LOCATION
+          value: /usr/local/symantec/app-control-service/logs/ac-st-test-access.log
+        - name: LOG_TYPE_NAME
+          value: ac-st-test
+        - name: ACCESS_LOG_TYPE_NAME
+          value: ac-st-test-access
+        - name: SERVICE_NAMESPACE
+          value: sedsep-dev
+        - name: SERVICE_NAME
+          value: ac-st-test
+        - name: LOGSTASH_HOST
+          value: icdm-logstash.sedsep-dev.svc.cluster.local
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedsep-icdm/icdm-filebeat:latest
+        imagePullPolicy: Always
+        name: filebeat
+        resources:
+          limits:
+            cpu: 100m
+            ephemeral-storage: 500Mi
+            memory: 600Mi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 600Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/symantec/app-control-service/logs/
+          name: app-control-service-logs-volume
+      - command:
+        - /usr/local/bin/envoy
+        - -c
+        - /envoy/envoy.yaml
+        - --service-cluster
+        - ac-st-test
+        - --service-node
+        - ${HOSTNAME}
+        - -l
+        - info
+        - --log-path
+        - /logs/envoy.application.log
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedicdsaas-images/envoy-alpine:v1.18.3
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - wget --post-data="" -O - http://127.0.0.1:10000/healthcheck/fail &&
+                sleep 60 || true
+        name: envoy
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: /healthz
+            port: 9443
+            scheme: HTTPS
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            ephemeral-storage: 1Gi
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 128Mi
+            memory: 128Mi
+        startupProbe:
+          failureThreshold: 100
+          httpGet:
+            path: /healthz
+            port: 9443
+            scheme: HTTPS
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /envoy
+          name: configs-envoy
+        - mountPath: /logs/
+          name: logs
+        - mountPath: /secrets
+          name: secrets-tls
+      - command:
+        - sh
+        - -c
+        - |
+          set -ex
+          while true; do
+              logrotate -v /configs/logrotate.conf -s /data/logrotate.status
+              sleep 600
+          done
+        image: gcr.io/saas-dev-us-cstack-gke1/gdu1/sedicdsaas-images/logrotate:1.1
+        imagePullPolicy: IfNotPresent
+        name: logrotate
+        resources:
+          limits:
+            cpu: 50m
+            ephemeral-storage: 20Mi
+            memory: 64Mi
+          requests:
+            cpu: 25m
+            ephemeral-storage: 20Mi
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /configs/logrotate.conf
+          name: properties-volume
+          subPath: logrotate.conf
+        - mountPath: /data
+          name: data
+        - mountPath: /logs
+          name: logs
+        - mountPath: /var/run/docker.sock
+          name: dockersock
+        workingDir: /logs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: gke.io/optimize-utilization-scheduler
+      securityContext: {}
+      serviceAccount: vaultauth-app-control-service
+      serviceAccountName: vaultauth-app-control-service
+      terminationGracePeriodSeconds: 130
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: sedsep-ses-services
+      volumes:
+      - name: properties-volume
+        projected:
+          defaultMode: 420
+          sources:
+          - configMap:
+              name: app-control-service-config
+      - emptyDir: {}
+        name: app-control-service-logs-volume
+      - emptyDir: {}
+        name: data
+      - hostPath:
+          path: /var/run/docker.sock
+          type: ""
+        name: dockersock
+      - name: icdm-system-tests-volume
+        persistentVolumeClaim:
+          claimName: icdm-system-tests-claims
+      - name: jetstream-kafka-conf
+        secret:
+          defaultMode: 420
+          secretName: sep-jetstream-jks-secret
+      - emptyDir: {}
+        name: logs
+      - name: secrets-tls
+        secret:
+          defaultMode: 420
+          secretName: app-control-service-sedsep-dev-svc-cluster-local-tls
+      - configMap:
+          defaultMode: 420
+          name: app-control-app-control-service-envoy-mesh
+        name: configs-envoy
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-11-18T06:24:25Z"
+    lastUpdateTime: "2022-11-18T06:24:25Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2022-05-05T09:06:16Z"
+    lastUpdateTime: "2022-12-15T00:47:53Z"
+    message: ReplicaSet "ac-st-test-54dd787c75" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 597
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

@@ -12,6 +12,7 @@ import com.example.systemtestshelper.domains.Report;
 import com.example.systemtestshelper.domains.xml.Class;
 import com.example.systemtestshelper.domains.xml.Package;
 import com.example.systemtestshelper.domains.xml.ReportXmlParser;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.example.systemtestshelper.domains.AwsConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
 @Controller
 @RequestMapping(value = "/systemtests")
@@ -54,10 +56,15 @@ public class ServiceController {
     @Value("${SERVICE_PATH:}")
     private String servicePath;
     //@Value("${PVC_PATH:}")
-    private String pvcPath="/Users/ab732698/Downloads/systemtests/view/logs";
+    private String pvcPath="/Users/ab732698/Downloads/systemtests/UAT_Phase1/log1";
     private static final String CSV_REPORT_PATH = "%s/report.csv";
     @Value(("${spring.web.resources.static-locations:}"))
     String path;
+
+    private String coverageLocation = "/Users/ab732698/Downloads/systemtests/UAT_Phase1";
+    private static final String REPORTS_LOCATION = "%s/log1";
+    private static final String REPORT_LOCATION = REPORTS_LOCATION+"/%s/report.xml";
+    private static final String SERVICE_LOCATION = "%s/%s";
 
     AwsConfig awsConfig = new AwsConfig();
     SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
@@ -65,7 +72,7 @@ public class ServiceController {
 
     SAXParser saxParser;
 
-    Map<String, com.example.systemtestshelper.domains.xml.Report> cachedReports = new HashMap<>();
+    Map<String, com.example.systemtestshelper.domains.xml.Report> cachedReports = new TreeMap<>();
 
     @GetMapping
     @ResponseBody
@@ -77,23 +84,10 @@ public class ServiceController {
     @GetMapping(value = "/reports/view")
     @ResponseStatus(value = HttpStatus.OK)
     public String viewReports(@RequestHeader final HttpHeaders headers, Model model){
-        List<CoverageReport> reports = new ArrayList<>();
-        File directoryPath = new File(pvcPath);
-        if(directoryPath.exists()) {
-            File[] files = directoryPath.listFiles();
-            assert files != null;
-            for (File f : files) {
-                if (f.isDirectory()) {
-                    String serviceName = f.getName();
-                    reports.add(new CoverageReport(serviceName, String.format(CSV_REPORT_PATH, f.getAbsolutePath())));
-                }
-            }
-        }else {
-            throw new IllegalArgumentException("Invalid coverage Path");
-        }
-
-        model.addAttribute("coverageReports", reports);
-        return "my_reports";
+        fillReports();
+        List<com.example.systemtestshelper.domains.xml.Report> reports = new ArrayList<>(cachedReports.values());
+        model.addAttribute("reports", reports);
+        return "reports_2";
     }
 
     @GetMapping(value = "/reports/{reportId}")
@@ -115,7 +109,7 @@ public class ServiceController {
             Package pk = report.getList().get(packageId);
             if(pk.getList().containsKey(classId)) {
                 model.addAttribute("report", pk.getList().get(classId));
-                return "details_xml";
+                return "report_details_2";
             }
         }
 
@@ -134,7 +128,7 @@ public class ServiceController {
 
         if(report.getList().containsKey(packageId)){
             model.addAttribute("report", report.getList().get(packageId));
-            return "details_xml";
+            return "report_details_2";
         }
 
         return "no_reports";
@@ -150,7 +144,26 @@ public class ServiceController {
         }
 
         model.addAttribute("report", report);
-        return "details_xml";
+        return "report_details_2";
+    }
+
+
+    private void fillReports(){
+        if(MapUtils.isEmpty(cachedReports)){
+            String reportsLocation = String.format(REPORTS_LOCATION, coverageLocation);
+            File directoryPath = new File(reportsLocation);
+            if(directoryPath.exists()) {
+                File[] files = directoryPath.listFiles();
+                assert files != null;
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        getReportsData(f.getName());
+                    }
+                }
+            }else {
+                throw new IllegalArgumentException("Invalid coverage Path "+reportsLocation);
+            }
+        }
     }
 
     private com.example.systemtestshelper.domains.xml.Report getReportsData(String reportId){
@@ -158,7 +171,8 @@ public class ServiceController {
             return cachedReports.get(reportId);
         }
 
-        try(FileInputStream fileInputStream = new FileInputStream(pvcPath+"/"+reportId+"/report.xml")) {
+        String reportLocation = String.format(REPORT_LOCATION, coverageLocation, reportId);
+        try(FileInputStream fileInputStream = new FileInputStream(reportLocation)) {
             initSaxParser();
             ReportXmlParser parser = new ReportXmlParser(reportId);
             saxParser.parse(fileInputStream, parser);
@@ -172,6 +186,27 @@ public class ServiceController {
         }
         return null;
     }
+
+//
+//    private com.example.systemtestshelper.domains.xml.Report getReportsData(String reportId){
+//        if(cachedReports.containsKey(reportId)){
+//            return cachedReports.get(reportId);
+//        }
+//
+//        try(FileInputStream fileInputStream = new FileInputStream(pvcPath+"/"+reportId+"/report.xml")) {
+//            initSaxParser();
+//            ReportXmlParser parser = new ReportXmlParser(reportId);
+//            saxParser.parse(fileInputStream, parser);
+//            com.example.systemtestshelper.domains.xml.Report report = parser.getReport();
+//            if(report != null){
+//                cachedReports.put(reportId, report);
+//                return report;
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     private void initSaxParser() throws SAXException, ParserConfigurationException {
         if(saxParser == null){
@@ -253,25 +288,69 @@ public class ServiceController {
 
     @PostMapping(value = "/generate")
     @ResponseBody
-    public ResponseEntity<String> generateReport(){
-        try {
-            ProcessBuilder builder = new ProcessBuilder();
-            //builder.command("sh", "-c", "ls");
-            builder.command("sh", "generate_reports.sh");
-            builder.directory(new File("/Users/ab732698/github_ripo/develop/system-tests-helper-service"));
-            Process process = builder.start();
-//            StreamGobbler streamGobbler =
-//                new StreamGobbler(process.getInputStream(), System.out::println);
-//            Future<?> future = Executors.newSingleThreadExecutor().submit(streamGobbler);
-            int exitCode = process.waitFor();
-            assert exitCode == 0;
-            //future.get(10, TimeUnit.SECONDS);
-        }catch (Exception e){
-            System.out.println("Exception "+e.getMessage());
-            e.printStackTrace();
+    public ResponseEntity<List<String>> generateReport(){
+
+                //Execute command for each service
+        List<String> failedReports = new ArrayList<>();
+        List<String> reportIds = new ArrayList<>();
+        String jarLocation = coverageLocation+"/jars/jacococli.jar";
+        String reportsLocation = String.format(REPORTS_LOCATION, coverageLocation);
+        File directoryPath = new File(reportsLocation);
+        if(directoryPath.exists()) {
+            File[] files = directoryPath.listFiles();
+            assert files != null;
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    executeCommand("xml", jarLocation, reportsLocation, f.getName(), reportIds, failedReports);
+                }
+            }
+        }else {
+            throw new IllegalArgumentException("Invalid coverage Path "+reportsLocation);
         }
 
-        return ResponseEntity.ok("done");
+        for(String reportId:reportIds){
+            getReportsData(reportId);
+        }
+
+        return ResponseEntity.ok(failedReports);
+
+
+
+
+
+//        try {
+//            ProcessBuilder builder = new ProcessBuilder();
+//            //builder.command("sh", "-c", "ls");
+//            //builder.command("sh", "generate_reports.sh");
+//            builder.command("java","-jar", "/Users/ab732698/Downloads/jacoco-0.8.8/lib/jacococli.jar", "report")
+//            builder.directory(new File("/Users/ab732698/github_ripo/develop/system-tests-helper-service"));
+//            Process process = builder.start();
+////            StreamGobbler streamGobbler =
+////                new StreamGobbler(process.getInputStream(), System.out::println);
+////            Future<?> future = Executors.newSingleThreadExecutor().submit(streamGobbler);
+//            int exitCode = process.waitFor();
+//            assert exitCode == 0;
+//            //future.get(10, TimeUnit.SECONDS);
+//        }catch (Exception e){
+//            System.out.println("Exception "+e.getMessage());
+//            e.printStackTrace();
+//        }
+
+//        return new ResponseEntity<>(failedReports, HttpStatus.OK);
+    }
+
+    private void executeCommand(String type, String jarLocation, String reportsLocation, String name, List<String> reportIds, List<String> failedReports) {
+        try {
+            String servicePath = String.format(SERVICE_LOCATION, reportsLocation, name);
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command("java","-jar",jarLocation, "report", servicePath+"/jacoco.exec", "--classfiles", servicePath+"/target", "--xml", servicePath+"/report_new.xml");
+            builder.directory(new File("/Users/ab732698/github_ripo/develop/system-tests-helper-service"));
+            builder.start();
+            reportIds.add(name);
+        }catch (Exception e){
+           e.printStackTrace();
+            failedReports.add(name);
+        }
     }
 
     @GetMapping(value = "/folders")

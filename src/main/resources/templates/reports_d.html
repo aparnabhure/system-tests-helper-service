@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <br>ICDM Code Coverage Report<br><br><br/>
+</div>
+<div class="container-fluid">
+    <table class="table table-bordered" style="width:100%; border-color: #0f5132; font-size: small">
+        <colgroup>
+            <col>
+            <col span="3" style="background-color: #E1FFCB">
+            <col span="2" style="background-color: #CBFFF0">
+            <col span="2" style="background-color: #E1FFCB">
+            <col span="2" style="background-color: #CBFFF0">
+        </colgroup>
+        <thead>
+        <tr>
+            <th style="width:20%"> NAME </th>
+            <th th:colspan="3"> FUNCTIONAL COVERAGE </th>
+            <th th:colspan="2"> CONDITIONAL COVERAGE </th>
+            <th th:colspan="2"> METHODS </th>
+            <th th:colspan="2"> LINES </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${ #lists.isEmpty(reports)}">
+            <td> No Reports Available </td>
+        </tr>
+        <tr th:each="report : ${reports}">
+
+            <td >
+                <a href="#" data-th-href="@{'/v1/systemtests/reports/'+${report.name}}"><span th:text="${report.name}"/></a>
+            </td>
+
+            <td >
+                <div class="container mt-3">
+                    <div class="progress" style="height:15px;width:150px;border: 1px solid;">
+                        <div class="progress-bar" aria-valuemin="0"
+                             aria-valuemax="100"
+                             th:style="'width:' + ( ${report.instructions.total} == 0  ? '0' : (${report.instructions.covered * 1.0} / ${report.instructions.total}) * 100.0 ) + '%; background-color: #249F44'">
+                        </div>
+                        <div class="progress-bar" aria-valuemin="0"
+                             aria-valuemax="100"
+                             th:style="'width:' + ( ${report.instructions.total} == 0  ? '0' : (${report.instructions.missed * 1.0} / ${report.instructions.total}) * 100.0 ) + '%; background-color: #FFFFFF'">
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td th:text="${report.instructions.covered} + '/' + ${report.instructions.total}"></td>
+            <td>
+                <div th:with="expr_result = ${report.instructions.total == 0}?0:(${report.instructions.covered * 1.0}/${report.instructions.total})*100.0">
+                    <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
+                </div>
+            </td>
+            <td th:text="${report.branches.covered} + '/' + ${report.branches.total}"></td>
+            <td>
+                <div th:with="expr_result = ${report.branches.total == 0}?0:(${report.branches.covered * 1.0}/${report.branches.total})*100.0">
+                    <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
+                </div>
+            </td>
+            <td th:text="${report.methods.covered} + '/' + ${report.methods.total}"></td>
+            <td>
+                <div th:with="expr_result = ${report.methods.total == 0}?0:(${report.methods.covered * 1.0}/${report.methods.total})*100.0">
+                    <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
+                </div>
+            </td>
+            <td th:text="${report.lines.covered} + '/' + ${report.lines.total}"></td>
+            <td>
+                <div th:with="expr_result = ${report.lines.total == 0}?0:(${report.lines.covered * 1.0}/${report.lines.total})*100.0">
+                    <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
