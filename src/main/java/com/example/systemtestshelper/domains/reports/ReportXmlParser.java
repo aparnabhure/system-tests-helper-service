@@ -34,10 +34,12 @@ public class ReportXmlParser extends DefaultHandler {
     XPackage aXPackage;
     XClass aXClass;
     XMethod aXMethod;
+    CharSequence springCharSequence;
 
     public ReportXmlParser(String reportName){
         aXReport = new XReport();
         aXReport.setName(reportName);
+        springCharSequence = "spring";
     }
 
     @Override
@@ -111,7 +113,7 @@ public class ReportXmlParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) {
         switch (qName){
             case METHOD:
-                if(coverageMap != null) {
+                if (coverageMap != null) {
                     aXMethod.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new XCoverage()));
                     aXMethod.setBranches(coverageMap.getOrDefault(BRANCH, new XCoverage()));
                     aXMethod.setLines(coverageMap.getOrDefault(LINE1, new XCoverage()));
@@ -123,8 +125,8 @@ public class ReportXmlParser extends DefaultHandler {
                 coverageMap = null;
                 break;
             case CLASS:
-                if(MapUtils.isNotEmpty(methods)) {
-                    aXClass.setUri(aXReport.getName()+"/"+ aXPackage.getName()+"/"+ aXClass.getName());
+                if(MapUtils.isNotEmpty(methods) && !StringUtils.containsIgnoreCase(aXClass.getName(), springCharSequence)) {
+                    aXClass.setUri(aXReport.getName() + "/" + aXPackage.getName() + "/" + aXClass.getName());
                     aXClass.setList(methods);
                     if (coverageMap != null) {
                         aXClass.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new XCoverage()));
@@ -139,29 +141,61 @@ public class ReportXmlParser extends DefaultHandler {
                 coverageMap = null;
                 break;
             case PACKAGE:
-                aXPackage.setUri(aXReport.getName()+"/"+ aXPackage.getName());
-                aXPackage.setList(classes);
-                if(coverageMap != null) {
-                    aXPackage.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new XCoverage()));
-                    aXPackage.setBranches(coverageMap.getOrDefault(BRANCH, new XCoverage()));
-                    aXPackage.setLines(coverageMap.getOrDefault(LINE1, new XCoverage()));
-                    aXPackage.setComplexities(coverageMap.getOrDefault(COMPLEXITY, new XCoverage()));
-                    aXPackage.setMethods(coverageMap.getOrDefault(METHOD1, new XCoverage()));
-                    aXPackage.setClasses(coverageMap.getOrDefault(CLASS1, new XCoverage()));
+                if(MapUtils.isNotEmpty(classes)) {
+                    aXPackage.setUri(aXReport.getName() + "/" + aXPackage.getName());
+                    aXPackage.setList(classes);
+                    XCoverage packageInstructions = new XCoverage();
+                    XCoverage packageBranches = new XCoverage();
+                    XCoverage packageLines = new XCoverage();
+                    XCoverage packageComplexity = new XCoverage();
+                    XCoverage packageMethods = new XCoverage();
+                    XCoverage packageClasses = new XCoverage();
+
+                    for (XClass xClass : classes.values()) {
+                        packageInstructions.updateCoverage(xClass.getInstructions());
+                        packageBranches.updateCoverage(xClass.getBranches());
+                        packageLines.updateCoverage(xClass.getLines());
+                        packageComplexity.updateCoverage(xClass.getComplexities());
+                        packageMethods.updateCoverage(xClass.getMethods());
+                        packageClasses.updateCoverage(xClass.getClasses());
+                    }
+
+                    aXPackage.setInstructions(packageInstructions);
+                    aXPackage.setBranches(packageBranches);
+                    aXPackage.setLines(packageLines);
+                    aXPackage.setComplexities(packageComplexity);
+                    aXPackage.setMethods(packageMethods);
+                    aXPackage.setClasses(packageClasses);
+
+                    packages.put(aXPackage.getName(), aXPackage);
                 }
-                packages.put(aXPackage.getName(), aXPackage);
                 coverageMap = null;
                 break;
             case REPORT:
                 aXReport.setList(packages);
-                if(coverageMap != null) {
-                    aXReport.setInstructions(coverageMap.getOrDefault(INSTRUCTION, new XCoverage()));
-                    aXReport.setBranches(coverageMap.getOrDefault(BRANCH, new XCoverage()));
-                    aXReport.setLines(coverageMap.getOrDefault(LINE1, new XCoverage()));
-                    aXReport.setComplexities(coverageMap.getOrDefault(COMPLEXITY, new XCoverage()));
-                    aXReport.setMethods(coverageMap.getOrDefault(METHOD1, new XCoverage()));
-                    aXReport.setClasses(coverageMap.getOrDefault(CLASS1, new XCoverage()));
+                XCoverage reportInstructions = new XCoverage();
+                XCoverage reportBranches = new XCoverage();
+                XCoverage reportLines = new XCoverage();
+                XCoverage reportComplexity = new XCoverage();
+                XCoverage reportMethods = new XCoverage();
+                XCoverage reportClasses = new XCoverage();
+
+                for(XPackage xPackage: packages.values()){
+                    reportInstructions.updateCoverage(xPackage.getInstructions());
+                    reportBranches.updateCoverage(xPackage.getBranches());
+                    reportLines.updateCoverage(xPackage.getLines());
+                    reportComplexity.updateCoverage(xPackage.getComplexities());
+                    reportMethods.updateCoverage(xPackage.getMethods());
+                    reportClasses.updateCoverage(xPackage.getClasses());
                 }
+
+                aXReport.setInstructions(reportInstructions);
+                aXReport.setBranches(reportBranches);
+                aXReport.setLines(reportLines);
+                aXReport.setComplexities(reportComplexity);
+                aXReport.setMethods(reportMethods);
+                aXReport.setClasses(reportClasses);
+
                 coverageMap = null;
                 break;
             default:

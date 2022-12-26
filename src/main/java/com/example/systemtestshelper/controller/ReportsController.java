@@ -28,9 +28,9 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Controller
 @RequestMapping(path = "/v1/systemtests")
@@ -48,7 +48,7 @@ public class ReportsController {
     private String coverageLocation ="/Users/ab732698/Downloads/systemtests/UAT_Phase1";
 
     private SAXParser saxParser;
-    Map<String, XReport> cachedReports = new HashMap<>();
+    Map<String, XReport> cachedReports = new TreeMap<>();
 
     @PostMapping(value = "/reports/generate")
     @ResponseStatus(value = HttpStatus.ACCEPTED)

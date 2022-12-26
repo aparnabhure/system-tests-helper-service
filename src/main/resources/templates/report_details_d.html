@@ -112,19 +112,19 @@
                     <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
                 </div>
             </td>
-            <th th:text="${report.lines.covered} + 'of '+${report.lines.total}"></th>
+            <th th:text="${report.lines.covered} + ' of '+${report.lines.total}"></th>
             <td>
                 <div th:with="expr_result = ${report.lines.total == 0}?0:(${report.lines.covered * 1.0}/${report.lines.total})*100.0">
                     <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
                 </div>
             </td>
-            <th th:text="${report.complexities.covered}+' of '+${report.complexities.covered}"></th>
+            <th th:text="${report.complexities.covered}+' of '+${report.complexities.total}"></th>
             <td>
                 <div th:with="expr_result = ${report.complexities.total == 0}?0:(${report.complexities.covered * 1.0}/${report.complexities.total})*100.0">
                     <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
                 </div>
             </td>
-            <th th:text="${report.methods.covered}+' of '+${report.methods.covered}"></th>
+            <th th:text="${report.methods.covered}+' of '+${report.methods.total}"></th>
             <td>
                 <div th:with="expr_result = ${report.methods.total == 0}?0:(${report.methods.covered * 1.0}/${report.methods.total})*100.0">
                     <span th:text="${#numbers.formatDecimal(expr_result, 0, 'COMMA', 0, 'POINT')} +' %'"/>
