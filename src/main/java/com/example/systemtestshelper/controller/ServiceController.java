@@ -12,6 +12,13 @@ import com.example.systemtestshelper.domains.Report;
 import com.example.systemtestshelper.domains.xml.Class;
 import com.example.systemtestshelper.domains.xml.Package;
 import com.example.systemtestshelper.domains.xml.ReportXmlParser;
+import com.google.api.gax.paging.Page;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.example.systemtestshelper.domains.AwsConfig;
@@ -37,10 +44,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,6 +82,55 @@ public class ServiceController {
     SAXParser saxParser;
 
     Map<String, com.example.systemtestshelper.domains.xml.Report> cachedReports = new TreeMap<>();
+
+    @Value("${gcs.bucket.name:}")
+    private String reportsUploadBucketName;
+    @Value("${gcs.access.key:}")
+    private String bucketAccessKey;
+
+    @GetMapping(value = "/download")
+    @ResponseBody
+    public ResponseEntity<String> download(){
+        downloadFromGCS();
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    private void downloadFromGCS(){
+        try{
+            GoogleCredentials googleCredentials = GoogleCredentials
+                .fromStream(new ByteArrayInputStream(bucketAccessKey.getBytes()));
+
+            Storage storage = StorageOptions.newBuilder().setCredentials(googleCredentials).build().getService();
+
+            Page<Blob> blobs = storage.list(reportsUploadBucketName, Storage.BlobListOption.prefix("jacoco/ci/"));
+
+            for (Blob blob : blobs.iterateAll()) {
+                String name = blob.getName();
+                //System.out.println("**** " + name);
+                if(name.endsWith("/jacoco.exec")) {
+                    String destFilePath = coverageLocation+"/"+name;
+                    System.out.println("**** DestFile " + destFilePath);
+                    blob.downloadTo(Paths.get(destFilePath));
+                }
+            }
+
+            System.out.println("**** ");
+            blobs = storage.list(reportsUploadBucketName, Storage.BlobListOption.prefix("jacoco/dev/"));
+
+            for (Blob blob : blobs.iterateAll()) {
+                String name = blob.getName();
+               // System.out.println("**** " + name);
+                if(name.endsWith("/jacoco.exec")) {
+                    String destFilePath = coverageLocation+"/"+name;
+                    System.out.println("**** DestFile " + destFilePath);
+                    blob.downloadTo(Paths.get(destFilePath));
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @GetMapping
     @ResponseBody
